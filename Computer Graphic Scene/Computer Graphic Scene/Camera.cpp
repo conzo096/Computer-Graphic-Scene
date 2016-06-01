@@ -36,12 +36,14 @@ void Camera::Update(float deltaTime)
 
 	// Target vector is just our position vector plus forward vector
 	target = position + forward;
+	std::cout << target.x << "," << target.y << "," << target.z << "\n";
 
 	// Set the translation vector to zero for the next frame
 	translation = glm::vec3(0.0f, 0.0f, 0.0f);
 
 	// We can now calculate the view matrix
 	view = glm::lookAt(position, target, up);
+	
 }
 
 void Camera::Rotate(float deltaYaw, float deltaPitch)

@@ -40,6 +40,22 @@ glm::mat4 Model::TransformMatrix()
 	return RST;
 }
 
+void Model::Render()
+{
+	// Bind the vertex array object for the 
+	glBindVertexArray(model.vao);
+	if (model.index_buffer != 0)
+	{
+		// Bind index buffer
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, model.index_buffer);
+		// Draw elements
+		glDrawElements(GL_TRIANGLES, model.indicesCount, GL_UNSIGNED_INT, nullptr);
+	}
+	else
+	{
+		glDrawArrays(GL_TRIANGLES, 0, model.vertices);
+	}
+}
 
 Model::~Model()
 {

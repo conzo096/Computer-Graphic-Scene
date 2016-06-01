@@ -128,6 +128,10 @@
     <ClInclude Include="SceneManager.h" />
     <ClInclude Include="Shaders.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\BasicFrag.frag" />
+    <None Include="Shaders\BasicVert.vert" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

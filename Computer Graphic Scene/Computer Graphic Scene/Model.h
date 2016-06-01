@@ -21,6 +21,7 @@ public:
 	void Translate(glm::vec3 translation);
 	void Rotate(float angle, glm::vec3 axis);
 	glm::mat4 TransformMatrix();
+	void Render();
 	//Model(char* filename);
 	//Model(char* filename);
 	//Model(char* filename);

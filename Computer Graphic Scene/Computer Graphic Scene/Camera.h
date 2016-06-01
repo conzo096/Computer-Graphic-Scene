@@ -2,6 +2,11 @@
 #include "include\glm\glm.hpp"
 #include "include\glm\gtx\euler_angles.hpp"
 #include "include\glm\gtc\matrix_transform.hpp"
+#include "include\glm\glm.hpp"
+#include "include\glm\gtc\type_ptr.hpp"
+#include <iostream>
+
+using namespace glm;
 class Camera
 {
 public:
@@ -27,6 +32,5 @@ public:
 	void Update(float deltaTime);
 	void Move(glm::vec3 movement);
 	void Rotate(float deltaYaw, float deltaPitch);
-
 };
 

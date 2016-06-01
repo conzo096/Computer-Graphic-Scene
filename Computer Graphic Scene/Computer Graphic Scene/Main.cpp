@@ -1,4 +1,7 @@
 // Main class for computer graphic scene.
+#define GL_FORCE_RADIANS
+#define GLFW_INCLUDE_GLU
+#define GLFW_DLL
 #include "include\GL\glew.h"
 #include "include\GLFW\glfw3.h"
 #include "Model.h"
@@ -16,14 +19,13 @@ float windowRatio;
 Model model;
 Camera camera;
 GLuint shader;
+double cursor_x, cursor_y;
 
 void keyManager(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	// This method handles key presses.
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, GL_TRUE);
-	if (key == GLFW_KEY_1 && action == GLFW_PRESS)
-		model.scale += glm::vec3(1, 1, 1);
 }
 
 bool Initalize()
@@ -37,9 +39,11 @@ bool Initalize()
 	window = glfwCreateWindow(800, 600, "My scene", NULL, NULL);
 	glfwMakeContextCurrent(window);
 	glfwGetFramebufferSize(window, &width, &height);
-	windowRatio = width / (float)height;
+	width = width;
+	height =height;
+	windowRatio = static_cast<float>(width) / static_cast<float>(height);
 	// initalise background colour.
-	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+	glClearColor(0.0f, 1.0f, 1.0f, 1.0f);
 	// Check window is initalized.
 	if (!window)
 	{
@@ -51,21 +55,47 @@ bool Initalize()
 	glfwMakeContextCurrent(window);
 	glfwSwapInterval(1);
 	glEnable(GL_PROGRAM_POINT_SIZE);
+	// Enable textures
+	glEnable(GL_TEXTURE_1D);
+	glEnable(GL_TEXTURE_2D);
+	glEnable(GL_TEXTURE_CUBE_MAP);
+	// Enable blending
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	// Enable depth testing
+	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);
+//	glCullFace(GL_BACK);
+	// Enable smoothing
+	glEnable(GL_LINE_SMOOTH);
+	glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+	glEnable(GL_POINT_SMOOTH);
+	glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
+	glEnable(GL_MULTISAMPLE);
+	// Enable offsetting - avoids depth conflicts
+	glPolygonOffset(1.0f, 1.0f);
+	glEnable(GL_POLYGON_OFFSET_FILL);
+	glEnable(GL_POLYGON_OFFSET_LINE);
+	glEnable(GL_POLYGON_OFFSET_POINT);
+	// Enable seamless cube maps
+	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 
 	glfwSetKeyCallback(window, keyManager);
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwGetCursorPos(window, &cursor_x, &cursor_y);
 	return true;
 }
 bool LoadContent()
 {
 	model = Model("Torus2.obj");
+	model.position = vec3(-10, 0, -1);
 	Shaders shaderLoader;
 	camera = Camera();
 	// This method initalizes the free camera.
-	camera.position = glm::vec3(0.0f, 8.0f, 0.0f);
+	camera.position = glm::vec3(-10.0f, 0.0f, 0.0f);
 	camera.target = glm::vec3(0.0f, 0.0f, 0.0f);
 	camera.projection = glm::perspective(glm::quarter_pi<float>(), windowRatio, 2.414f, 1000.0f);
-	
-	
+
 	shader = shaderLoader.CreateShader("Shaders\\BasicVert.vert",
 		"Shaders\\BasicFrag.frag");
 
@@ -74,50 +104,47 @@ bool LoadContent()
 bool Update(float deltaTime)
 {
 	glViewport(0, 0, width, height);
+	// Stores last updates cursor position as well as updating this frames cursor position.
+	double current_x;
+	double current_y;
+	// Get cursor position.
+	glfwGetCursorPos(window, &current_x, &current_y);
+	// Calculate delta of cursor positions from last frame
+	double delta_x = current_x - cursor_x;
+	double delta_y = current_y - cursor_y;
+	// Multiply deltas by ratios - gets actual change in orientation
+	delta_x *= width;
+	delta_y *= height;
+	// Rotate the free camera.
+	camera.Rotate(static_cast<float>(delta_x), static_cast<float>(-delta_y)); // flipped y to revert the invert.
+	if (glfwGetKey(window, GLFW_KEY_W))
+		camera.Move(glm::vec3(0.0f, 0.0f, 5.0f) * deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_S))
+		camera.Move(glm::vec3(0.0f, 0.0f, -5) * deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_A))
+		camera.Move(glm::vec3(-5.0f, 0.0f, 0.0f) * deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_D))
+		camera.Move(glm::vec3(5.0f, 0.0f, 0.0f) * deltaTime);
+
 	camera.Update(deltaTime);
+	if (glfwGetKey(window,GLFW_KEY_1))
+		model.scale += glm::vec3(1, 1, 1);
 	return true;
 }
 
 bool Render()
 {
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	glm::mat4 M = model.TransformMatrix();
 	glm::mat4 V = camera.view;
 	glm::mat4 P = camera.projection;
 	glm::mat4 MVP = P*V*M;
-	glClear(GL_COLOR_BUFFER_BIT);
-	glMatrixMode(GL_PROJECTION);
 	// Select what shader you want to use.
 	glUseProgram(shader);
-	GLint loc = glGetUniformLocation(shader, "mvp");
+	GLint loc = glGetUniformLocation(shader, "MVP");
 	glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(MVP));
+	model.Render();
 
-	// Bind the vertex array object for the 
-	glBindVertexArray(model.model.vao);
-	if (model.model.index_buffer != 0)
-	{
-		// Bind index buffer
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,model.model.index_buffer);
-		// Draw elements
-		glDrawElements(GL_TRIANGLES,model.model.indicesCount , GL_UNSIGNED_INT, nullptr);
-	}
-	else
-	{
-		glDrawArrays(GL_TRIANGLES, 0, model.model.vertices);
-	}
-
-//	glLoadIdentity();
-//	glOrtho(-windowRatio, windowRatio, -1.f, 1.f, 1.f, -1.f);
-//	glMatrixMode(GL_MODELVIEW);
-//	glLoadIdentity();
-//	glRotatef((float)glfwGetTime() * 50.f, 0.f, 0.f, 1.f);
-//	glBegin(GL_TRIANGLES);
-//	glColor3f(1.f, 0.f, 0.f);
-//	glVertex3f(-0.6f, -0.4f, 0.f);
-//	glColor3f(0.f, 1.f, 0.f);
-//	glVertex3f(0.6f, -0.4f, 0.f);
-//	glColor3f(0.f, 0.f, 1.f);
-//	glVertex3f(0.f, 0.6f, 0.f);
-//	glEnd();
 	glfwSwapBuffers(window);
 	glfwPollEvents();
 	return true;
