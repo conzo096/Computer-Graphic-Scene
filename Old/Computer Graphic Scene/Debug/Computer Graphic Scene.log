@@ -1,0 +1,10 @@
+﻿  Shaders.cpp
+  SceneManager.cpp
+  ModelManager.cpp
+  Model.cpp
+  Main.cpp
+  GLM: perspective function taking degrees as a parameter is deprecated. #define GLM_FORCE_RADIANS before including GLM headers to remove this message.
+  Camera.cpp
+  Generating Code...
+  Computer Graphic Scene.vcxproj -> C:\Users\40167111\Desktop\Computer-Graphic-Scene\Old\Debug\Computer Graphic Scene.exe
+  Computer Graphic Scene.vcxproj -> C:\Users\40167111\Desktop\Computer-Graphic-Scene\Old\Debug\Computer Graphic Scene.pdb (Partial PDB)
