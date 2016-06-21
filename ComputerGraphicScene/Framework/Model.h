@@ -1,4 +1,6 @@
 #pragma once
+#include "Transformation.h"
+#include "Material.h"
 namespace BarnabusFramework
 {
 	enum BUFFER_INDEXES
@@ -36,31 +38,31 @@ namespace BarnabusFramework
 		GLuint indicesCount;
 		//GLuint model;
 		GLenum type;
-		// Transformations for model.
-		glm::vec3 scale;
-		glm::quat orientation;
-		glm::vec3 position;
+
+		// Tranformation information
+		Transformation transform;
+		Material material;
 
 	public:
 		Model();
-		Model(std::string &filename);
+		Model(const std::string &filename);
 		~Model();
-		void SetType(GLenum t) { type = t; };
-		void SetPosition(glm::vec3 pos) { position = pos; };
-		 
 
-		// Constructors.
-		void Scale(glm::vec3 axis);
-		void Translate(glm::vec3 translation);
-		void Rotate(const glm::vec3 &rotation);
-		void Rotate(const glm::quat & q);
-		glm::mat4 TransformMatrix();
-		void Render();
-		// Methods for mesh.
-		void LoadMesh(const std::string &filename);
+	
+		void Render(); // Renders the mesh.
+		// 
 		bool AddBuffer(const std::vector<glm::vec4>  &buffer, GLuint index);
 		bool AddBuffer(const std::vector<glm::vec3>  &buffer, GLuint index);
 		bool AddBuffer(const std::vector<glm::vec2>  &buffer, GLuint index);
 		bool AddIndexBuffer(const std::vector<GLuint> &buffer);
+
+		// Accessors.
+		void SetType(GLenum t) { type = t; };
+		void SetTransform(Transformation trans) { transform = trans; };
+		void SetMaterial(Material mat) { material = mat; };
+
+
+		Transformation GetTransform() { return transform; };
+		Material GetMaterial() { return material; };
 	};
 }

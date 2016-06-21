@@ -12,16 +12,13 @@ namespace BarnabusFramework
 	}
 
 
-
 	void Renderer::SetUpOpenGL()
 	{
 		// initalise glew and glfw liberies.
 		// Turn on glewExperimental for...
-		glewExperimental = GL_TRUE;
-		if (!glewInit())
-			exit(EXIT_FAILURE);
 		if (!glfwInit())
 			exit(EXIT_FAILURE);
+
 		// Create a simple window for the Scene.
 		currentWindow = glfwCreateWindow(800, 600, "My Scene", NULL, NULL);
 		// Make current window the main context.
@@ -37,11 +34,21 @@ namespace BarnabusFramework
 			// If window not initalised, display error and close.
 			std::cerr << "ERROR: Window creation failed.\n";
 			glfwTerminate();
-			glfwTerminate();
 			exit(EXIT_FAILURE);
 		}
+
+		glewExperimental = GL_TRUE;
+		if (glewInit() != GLEW_OK)
+			exit(EXIT_FAILURE);
 		// Initalise background colour. - Currently yellow, because why not.
-		glClearColor(1.0f, 1.0f, 0, 1.0f);
+		glClearColor(0.0f, 1.0f, 1.0f, 1.0f);
+
+		// Set window hints for GLFW
+		glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+		glfwWindowHint(GLFW_DECORATED, GL_FALSE);
+		glfwWindowHint(GLFW_SAMPLES, 4);
+		glfwWindowHint(GLFW_VERSION_MAJOR, 4);
+		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 		// Enable required server-side GL capability.
 		glEnable(GL_PROGRAM_POINT_SIZE);
 		// Enable Textures.
@@ -74,20 +81,18 @@ namespace BarnabusFramework
 
 	void Renderer::Run()
 	{
+		SetUpOpenGL();
 		// Call the user defined function.
-		if (init != NULL)
+		if (!init())
 		{
-			init();
 			std::cout << "User initalisation finished!\n";
 		}
-
 		// initalise current time and last time.
 		auto currentTime = std::chrono::system_clock::now();
 		auto previousTime = std::chrono::system_clock::now();
 		// Load the Content required for the scene.
-		if (loadContent != NULL)
+		if (loadContent() != NULL)
 		{
-			loadContent();
 			std::cout << "Content loaded!\n";
 		}
 		// Now Enter a loop that will keep going until the user quits. 

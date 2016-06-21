@@ -56,7 +56,11 @@ namespace BarnabusFramework
 		}
 		return shader;
 	}
-	GLuint Shaders::CreateShader(char * vertexFilename, char * fragmentFilename)
+	GLuint Shaders::GetUniformLocation(char * filename)
+	{
+		return glGetUniformLocation(id, filename);
+	}
+	void Shaders::CreateShader(char * vertexFilename, char * fragmentFilename)
 	{
 		// Read shader files and save code.
 		std::string vertexShader = ReadShader(vertexFilename);
@@ -81,8 +85,8 @@ namespace BarnabusFramework
 			std::vector<char> program_log(info_log_length);
 			glGetProgramInfoLog(program, info_log_length, NULL, &program_log[0]);
 			std::cout << "Shader Loader : LINK ERROR" << std::endl << &program_log[0] << std::endl;
-			return 0;
 		}
-		return program;
+		// Assign the program id.
+		id = program;
 	}
 }

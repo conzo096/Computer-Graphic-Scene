@@ -164,6 +164,10 @@
       <Project>{ac50d59c-ce62-4293-b8c5-73f8e9cbde5b}</Project>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Shaders\BasicFrag.frag" />
+    <None Include="..\Shaders\BasicVert.vert" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

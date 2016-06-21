@@ -7,11 +7,10 @@ namespace BarnabusFramework
 	{
 	private:
 		// Current position of the camera.
-		glm::vec3 position;
-		// target same?
-		glm::vec3 target;
+		glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f);
+		glm::vec3 target = glm::vec3(0.0f, 0.0f, -1.0f);
 		// Up direction of the camera.
-		glm::vec3 up;
+		glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
 		// translation of camera since the last frame.
 		glm::vec3 translation;
 		// Current rotation on the x-axis (pitch)

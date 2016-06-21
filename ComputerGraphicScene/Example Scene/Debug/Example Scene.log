@@ -1,3 +1,2 @@
 ﻿  Main.cpp
-  GLM: perspective function taking degrees as a parameter is deprecated. #define GLM_FORCE_RADIANS before including GLM headers to remove this message.
-  Example Scene.vcxproj -> C:\Users\40167111\Desktop\Computer-Graphic-Scene\ComputerGraphicScene\Debug\Example Scene.exe
+  Example Scene.vcxproj -> C:\Users\Conner\Desktop\Computer-Graphic-Scene\ComputerGraphicScene\Debug\Example Scene.exe

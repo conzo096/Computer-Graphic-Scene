@@ -4,6 +4,7 @@ namespace BarnabusFramework
 	class Shaders
 	{
 	private:
+		GLuint id; // The id of the program.
 		std::string ReadShader(char *filename);
 		GLuint BuildShader(GLenum shaderType,
 			std::string source,
@@ -11,7 +12,9 @@ namespace BarnabusFramework
 	public:
 		Shaders();
 		~Shaders();
-		GLuint CreateShader(char* vertexFilename,
+		GLuint GetId() { return id; };
+		GLuint GetUniformLocation(char *filename);
+		void CreateShader(char* vertexFilename,
 			char* fragmentFilename);
 
 	};

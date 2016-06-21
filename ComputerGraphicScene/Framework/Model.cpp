@@ -3,27 +3,16 @@
 
 namespace BarnabusFramework
 {
-	Model::Model()throw(...) :
+	Model::Model() throw(...):
 		vao(0),
 		vertices(0),
 		index_buffer(0),
 		indicesCount(0),
 		type(GL_TRIANGLES)
 	{
-		glewInit();
 	}
 
-	Model::Model(std::string & filename) : Model()
-	{
-		LoadMesh(filename);
-	}
-
-
-	Model::~Model()
-	{
-	}
-
-	void Model::LoadMesh(const std::string & filename)
+	Model::Model(const std::string & filename)throw (...) : Model()
 	{
 		// Create model importer
 		Assimp::Importer loadModel;
@@ -126,6 +115,9 @@ namespace BarnabusFramework
 			AddIndexBuffer(indices);
 	}
 
+	Model::~Model()
+	{
+	}
 	bool Model::AddBuffer(const std::vector<glm::vec4>& buffer, GLuint index)
 	{
 		// Check if vertex array object initialised
@@ -198,7 +190,6 @@ namespace BarnabusFramework
 		buffers[index] = id;
 		return true;
 	}
-
 	bool Model::AddIndexBuffer(const std::vector<GLuint>& buffer)
 	{
 		//	 Set indices to buffer size
@@ -209,40 +200,6 @@ namespace BarnabusFramework
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, buffer.size() * sizeof(GLuint), &buffer[0], GL_STATIC_DRAW);
 		return true;
-	}
-
-	void Model::Scale(glm::vec3 axis)
-	{
-		scale = axis;
-	}
-
-	void Model::Translate(glm::vec3 translation)
-	{
-		// Add the translation to the current position.
-		this->position += translation;
-	}
-
-	void Model::Rotate(const glm::vec3 &rotation)
-	{
-		glm::quat rot(rotation);
-		Rotate(rot);
-	}
-	void Model::Rotate(const glm::quat &q)
-	{
-		orientation = orientation * q;
-		orientation = glm::normalize(orientation);
-	}
-
-	glm::mat4 Model::TransformMatrix()
-	{
-		/* Order is Rotate * Scale * Translate.
-		*
-		*/
-		glm::mat4 T = glm::translate(glm::mat4(1), position);
-		glm::mat4 S = glm::scale(glm::mat4(1), scale);
-		glm::mat4 R = glm::mat4_cast(orientation);
-		glm::mat4 RST = T*R*S;
-		return RST;
 	}
 
 	void Model::Render()

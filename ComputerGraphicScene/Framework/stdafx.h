@@ -4,11 +4,14 @@
 //
 
 #pragma once
-
-#define GL_FORCE_RADIANS
+#define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headers
+#define VC_EXTRALEAN
 #define GLFW_INCLUDE_GLU
-#define GLFW_DL
+#define GLFW_DLL
+#define GLM_FORCE_RADIANS
 
+
+#include <SDKDDKVer.h>
 #include <glm\glm.hpp>
 #include <glm\gtc\matrix_transform.hpp>
 #include <glm\gtc\quaternion.hpp>
