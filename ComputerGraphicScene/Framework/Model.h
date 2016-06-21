@@ -44,8 +44,8 @@ namespace BarnabusFramework
 		Material material;
 
 	public:
-		Model();
-		Model(const std::string &filename);
+		Model() throw (...);
+		Model(const std::string &filename) throw (...);
 		~Model();
 
 	

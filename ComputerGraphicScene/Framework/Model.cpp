@@ -16,11 +16,14 @@ namespace BarnabusFramework
 	{
 		// Create model importer
 		Assimp::Importer loadModel;
-		// Read in the model data
+		// Read in the model data 
 		const aiScene *model = loadModel.ReadFile(filename, aiProcess_Triangulate
 			| aiProcess_GenSmoothNormals
 			| aiProcess_ValidateDataStructure
-			| aiProcess_FindInvalidData);
+			| aiProcess_FindInvalidData
+			| aiProcess_FixInfacingNormals
+			| aiProcess_ImproveCacheLocality
+			| aiProcess_GenUVCoords);
 		// Check that data has been read in correctly
 		if (!model)
 		{
@@ -36,7 +39,7 @@ namespace BarnabusFramework
 		std::vector<glm::vec2> tex_coords;
 		std::vector<glm::vec4> colours;
 		std::vector<GLuint> indices;
-		int vertex_begin = 0;
+		unsigned int vertex_begin = 0;
 		// Loop throw each sub-mesh.
 		for (unsigned int i = 0; i < model->mNumMeshes; i++)
 		{
@@ -45,11 +48,9 @@ namespace BarnabusFramework
 			// get the vertex positions.
 			for (unsigned int j = 0; j < modelMesh->mNumVertices; j++)
 			{
-				aiVector3D position = modelMesh->mVertices[j];
-				// Convert the aiVector3D to glm vector3.
-				glm::vec3 convertedPosition = glm::vec3(position.x, position.y, position.z);
+				aiVector3D pos = modelMesh->mVertices[j];
 				// push back to positions vector.
-				positions.push_back(convertedPosition);
+				positions.push_back(glm::vec3(pos.x,pos.y,pos.z));
 			}
 
 			// Check if there is normals data in sub-mesh.
@@ -57,23 +58,9 @@ namespace BarnabusFramework
 			{
 				for (unsigned int j = 0; j < modelMesh->mNumVertices; j++)
 				{
-					aiVector3D normal = modelMesh->mNormals[j];
-					// Convert from aivector3D to glm vector3.
-					glm::vec3 convertedNormal = glm::vec3(normal.x, normal.y, normal.z);
+					aiVector3D norm = modelMesh->mNormals[j];
 					// push back to normals vector.
-					normals.push_back(convertedNormal);
-				}
-			}
-			// Check if sub-mesh has texture information.
-			if (modelMesh->HasTextureCoords(0) == true)
-			{
-				for (unsigned int j = 0; j < modelMesh->mNumVertices; j++)
-				{
-					aiVector3D textureCoords = modelMesh->mTextureCoords[0][j];
-					// Convert texture coordinates.
-					glm::vec2 convertedTextureCoords = glm::vec2(textureCoords.x, textureCoords.y);
-					// push back to texCoords.
-					tex_coords.push_back(convertedTextureCoords);
+					normals.push_back(glm::vec3(norm.x,norm.y,norm.z));
 				}
 			}
 			// Check sub-mesh for colour information.
@@ -81,23 +68,33 @@ namespace BarnabusFramework
 			{
 				for (unsigned int j = 0; j < modelMesh->mNumVertices; j++)
 				{
-					aiColor4D VertexColour = modelMesh->mColors[0][j];
-					// convert from aiColour4D to glm vec4.
-					glm::vec4 convertedVertexColour = glm::vec4(VertexColour.r, VertexColour.g, VertexColour.b, VertexColour.a);
-					colours.push_back(convertedVertexColour);
+					aiColor4D colour = modelMesh->mColors[0][j];
+					colours.push_back(glm::vec4(colour.r,colour.g,colour.b,colour.a));
 				}
 			}
 			else if (modelMesh->HasVertexColors(0) == false)
 			{
-				// No colour, push back grey.
-				colours.push_back(glm::vec4(0.7, 0.7, 0.7, 1));
+				// No colour loaded, push back grey.
+				for (unsigned int j = 0; j < modelMesh->mNumVertices; j++)
+				{
+					colours.push_back(glm::vec4(0.7, 0.7, 0.7, 1));
+				}
+			}
+			// Check if sub-mesh has texture information.
+			if (modelMesh->HasTextureCoords(0) == true)
+			{
+				for (unsigned int j = 0; j < modelMesh->mNumVertices; j++)
+				{
+					auto tex_coord = modelMesh->mTextureCoords[0][j];
+					tex_coords.push_back(glm::vec2(tex_coord.x, tex_coord.y));
+				}
 			}
 			// If we have face information, then add to index buffer
 			if (modelMesh->HasFaces() == true)
 			{
-				for (unsigned int k = 0; k < modelMesh->mNumFaces; k++)
+				for (unsigned int j = 0; j < modelMesh->mNumFaces; j++)
 				{
-					aiFace modelFace = modelMesh->mFaces[k];
+					aiFace modelFace = modelMesh->mFaces[j];
 					for (unsigned int l = 0; l < 3; l++)
 						indices.push_back(vertex_begin + modelFace.mIndices[l]);
 				}
@@ -120,6 +117,9 @@ namespace BarnabusFramework
 	}
 	bool Model::AddBuffer(const std::vector<glm::vec4>& buffer, GLuint index)
 	{
+
+		// Check that buffer is not empty
+		assert(buffer.size() > 0);
 		// Check if vertex array object initialised
 		if (vao == 0)
 			// Create the vertex array object
